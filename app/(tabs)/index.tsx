@@ -246,7 +246,7 @@ const DashboardScreen: React.FC = () => {
             {allCompleted
               ? "All prayers completed for today! 🎉"
               : isCurrentDate
-              ? "Complete all prayers to increase your streak!"
+              ? "May Allah accept your prayers"
               : "Prayer record for this date"}
           </Text>
         </View>

@@ -264,8 +264,8 @@ const SettingsScreen: React.FC = () => {
           <Text style={styles.sectionTitle}>About</Text>
 
           <Text style={styles.aboutText}>
-            DeenFlow helps you track your five daily prayers, maintain a streak,
-            and receive timely notifications.
+            SalahTrack helps you track your five daily prayers and receive
+            timely notifications.
           </Text>
 
           <Text style={styles.versionText}>Version 1.0.0</Text>
