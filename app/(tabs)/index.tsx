@@ -1,108 +1,53 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, ScrollView, SafeAreaView } from "react-native";
-
 import { format } from "date-fns";
 import PrayerItem from "../../components/PrayerItem";
 import StreakCounter from "../../components/StreakCounter";
 import HadithDisplay from "../../components/HadithDisplay";
 import CompletionModal from "../../components/CompletionModal";
-import { PrayerLog, PrayerName, StreakData } from "../../src/types";
+import { PrayerName } from "../../src/types";
 import { PRAYER_TIMES } from "../../src/utils/notifications";
-import {
-  getPrayerLog,
-  savePrayerLog,
-  getStreakData,
-  updateStreak,
-  getDailyHadithIndex,
-  areAllPrayersCompleted,
-} from "../../src/utils/storage";
 import { hadiths } from "../../src/data/hadiths";
+import { usePrayerStore } from "../../src/store/usePrayerStore";
 
 const DashboardScreen: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState<string>(
-    format(new Date(), "yyyy-MM-dd")
-  );
-  const [prayerLog, setPrayerLog] = useState<PrayerLog>({
+  // State for modal visibility
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  // Get data and actions from Zustand store
+  const {
+    currentDate,
+    prayerLogs,
+    streak,
+    togglePrayer,
+    areAllPrayersCompleted,
+    getDailyHadithIndex,
+  } = usePrayerStore();
+
+  // Get prayer log for current date
+  const prayerLog = prayerLogs[currentDate] || {
     fajr: false,
     dhuhr: false,
     asr: false,
     maghrib: false,
     isha: false,
-  });
-  const [streakData, setStreakData] = useState<StreakData>({
-    count: 0,
-    lastCompletedDate: "",
-  });
-  const [hadithIndex, setHadithIndex] = useState<number>(0);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [allCompleted, setAllCompleted] = useState<boolean>(false);
-
-  // Load data on component mount
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  // Load prayer log, streak data, and daily hadith
-  const loadData = async () => {
-    try {
-      // Get prayer log for current date
-      const savedPrayerLog = await getPrayerLog(currentDate);
-      if (savedPrayerLog) {
-        setPrayerLog(savedPrayerLog);
-
-        // Check if all prayers are completed
-        const completed = await areAllPrayersCompleted(currentDate);
-        setAllCompleted(completed);
-      }
-
-      // Get streak data
-      const savedStreakData = await getStreakData();
-      setStreakData(savedStreakData);
-
-      // Get daily hadith index
-      const index = await getDailyHadithIndex(currentDate);
-      setHadithIndex(index);
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
   };
 
+  // Check if all prayers are completed
+  const allCompleted = areAllPrayersCompleted(currentDate);
+
+  // Get daily hadith index
+  const hadithIndex = getDailyHadithIndex(currentDate);
+
   // Handle prayer toggle
-  const handlePrayerToggle = async (name: PrayerName) => {
-    try {
-      // Update prayer log
-      const updatedPrayerLog = {
-        ...prayerLog,
-        [name]: !prayerLog[name],
-      };
-
-      // Save updated prayer log
-      await savePrayerLog(currentDate, updatedPrayerLog);
-      setPrayerLog(updatedPrayerLog);
-
-      // Show completion modal if prayer is marked as completed
-      if (!prayerLog[name]) {
-        setModalVisible(true);
-      }
-
-      // Check if all prayers are now completed
-      const completed =
-        updatedPrayerLog.fajr &&
-        updatedPrayerLog.dhuhr &&
-        updatedPrayerLog.asr &&
-        updatedPrayerLog.maghrib &&
-        updatedPrayerLog.isha;
-
-      setAllCompleted(completed);
-
-      // Update streak if all prayers are completed
-      if (completed) {
-        const newStreakData = await updateStreak(currentDate);
-        setStreakData(newStreakData);
-      }
-    } catch (error) {
-      console.error("Error toggling prayer:", error);
+  const handlePrayerToggle = (name: PrayerName) => {
+    // Show completion modal if prayer is being marked as completed
+    if (!prayerLog[name]) {
+      setModalVisible(true);
     }
+
+    // Update prayer in store
+    togglePrayer(currentDate, name);
   };
 
   return (
@@ -114,7 +59,7 @@ const DashboardScreen: React.FC = () => {
         </Text>
 
         {/* Streak counter */}
-        <StreakCounter count={streakData.count} />
+        <StreakCounter count={streak} />
 
         {/* Prayer list */}
         <View className="mb-4">

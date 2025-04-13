@@ -8,6 +8,10 @@ import "react-native-reanimated";
 import "../global.css";
 import * as Notifications from "expo-notifications";
 
+// Import Zustand stores
+import { usePrayerStore } from "../src/store/usePrayerStore";
+import { useNotificationStore } from "../src/store/useNotificationStore";
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -21,13 +25,23 @@ Notifications.setNotificationHandler({
 });
 
 export default function RootLayout() {
+  // Access stores to initialize them
+  const initializeNotifications = useNotificationStore(
+    (state) => state.initializeNotifications
+  );
+  const prayerStore = usePrayerStore();
+
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
     if (loaded) {
+      // Hide splash screen
       SplashScreen.hideAsync();
+
+      // Initialize notifications
+      initializeNotifications();
     }
   }, [loaded]);
 
