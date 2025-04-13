@@ -84,7 +84,7 @@ const DashboardScreen: React.FC = () => {
     header: {
       backgroundColor: colors.card,
       paddingTop: StatusBar.currentHeight || 40,
-      paddingBottom: 10,
+      paddingBottom: 0,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -93,37 +93,32 @@ const DashboardScreen: React.FC = () => {
       justifyContent: "space-between",
       alignItems: "center",
       paddingHorizontal: 16,
+      paddingBottom: 8,
     },
     title: {
-      fontSize: 20,
+      fontSize: 22,
       fontWeight: "bold",
+      color: colors.text,
+    },
+    monthYearText: {
+      fontSize: 18,
+      fontWeight: "600",
       color: colors.text,
     },
     topStreakContainer: {
       flexDirection: "row",
       alignItems: "center",
-      padding: 4,
-    },
-    streakContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: colors.card,
-      borderRadius: 16,
-      padding: 12,
-      marginBottom: 16,
+      backgroundColor: colors.background,
+      borderRadius: 20,
+      paddingVertical: 4,
+      paddingHorizontal: 10,
       borderWidth: 1,
       borderColor: colors.border,
     },
-    streakText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.text,
-      marginLeft: 8,
-    },
     streakCount: {
-      fontSize: 22,
+      fontSize: 16,
       fontWeight: "bold",
-      color: colors.success,
+      color: colors.secondary,
       marginLeft: 4,
     },
     sectionTitle: {
@@ -135,23 +130,33 @@ const DashboardScreen: React.FC = () => {
     },
     hadithContainer: {
       backgroundColor: colors.card,
-      borderRadius: 16,
+      borderRadius: 20,
       padding: 16,
       marginBottom: 16,
       borderWidth: 1,
       borderColor: colors.border,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
     },
     completionContainer: {
       backgroundColor: colors.card,
-      borderRadius: 16,
+      borderRadius: 20,
       padding: 12,
       marginTop: 16,
       borderWidth: 1,
       borderColor: colors.border,
       alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
     },
     completionText: {
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: "500",
       color: colors.text,
       textAlign: "center",
@@ -171,8 +176,11 @@ const DashboardScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
+          <Text style={styles.monthYearText}>
+            {format(selectedDate, "MMMM yyyy")}
+          </Text>
           <View style={styles.topStreakContainer}>
-            <Ionicons name="flame" size={24} color={colors.secondary} />
+            <Ionicons name="flame" size={18} color={colors.secondary} />
             <Text style={styles.streakCount}>{streak}</Text>
           </View>
         </View>
@@ -186,7 +194,7 @@ const DashboardScreen: React.FC = () => {
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ padding: 12 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Daily Hadith */}

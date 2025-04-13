@@ -129,66 +129,37 @@ const DateSelector: React.FC<DateSelectorProps> = ({
     return prayerLogs[dateStr] ? colors.error : "transparent";
   };
 
-  // Format month and year for header - use the middle date for display
-  const middleIndex = Math.floor(visibleDates.length / 2);
-  const middleDate = visibleDates[middleIndex] || new Date();
-  const monthYear = format(middleDate, "MMMM yyyy");
+  // We don't need to format month and year here anymore as it's shown in the parent component
 
   // Create styles
   const styles = StyleSheet.create({
     container: {
-      marginBottom: 16,
-    },
-    header: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-    },
-    monthYearText: {
-      fontSize: 20,
-      fontWeight: "bold",
-      color: colors.secondary,
-    },
-    buttonRow: {
-      flexDirection: "row",
-    },
-    navButton: {
-      padding: 8,
-    },
-    rightButton: {
-      marginLeft: 8,
+      marginBottom: 0,
     },
     dayNameText: {
-      fontSize: 12,
-      marginBottom: 4,
+      fontSize: 11,
+      marginBottom: 2,
     },
     dateButton: {
       alignItems: "center",
-      paddingVertical: 8,
-      marginHorizontal: 1,
+      paddingVertical: 6,
+      marginHorizontal: 2,
     },
     dateText: {
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: "600",
       marginBottom: 2,
     },
     dateDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      marginTop: 2,
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      marginTop: 1,
     },
   });
 
   return (
     <View style={styles.container}>
-      {/* Month and Year Header */}
-      <View style={styles.header}>
-        <Text style={styles.monthYearText}>{monthYear}</Text>
-      </View>
-
       {/* Combined Day Names and Date Selector */}
       <ScrollView
         ref={scrollViewRef}
@@ -216,7 +187,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                   backgroundColor: isSelected
                     ? colors.secondary
                     : "transparent",
-                  borderRadius: 12,
+                  borderRadius: 20,
                 },
               ]}
             >
