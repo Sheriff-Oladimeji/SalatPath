@@ -1,20 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { 
-  calculateQiblaDirection, 
-  calculateHeading, 
-  calculateQiblaAngle, 
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { useThemeStore } from "../src/store/useThemeStore";
+import {
+  calculateQiblaDirection,
+  calculateHeading,
+  calculateQiblaAngle,
   getCurrentLocation,
-  startMagnetometer
-} from '../src/utils/qibla';
+  startMagnetometer,
+} from "../src/utils/qibla";
 
 const QiblaCompass: React.FC = () => {
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
   const [qiblaDirection, setQiblaDirection] = useState<number | null>(null);
   const [deviceHeading, setDeviceHeading] = useState<number>(0);
   const [qiblaAngle, setQiblaAngle] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Store qibla direction in a ref to avoid dependency issues
+  const qiblaDirectionRef = useRef<number | null>(null);
+
+  // Get theme colors
+  const { colors } = useThemeStore();
+
+  // Initialize compass and location
   useEffect(() => {
     let magnetometerSubscription: { unsubscribe: () => void } | null = null;
 
@@ -22,32 +33,24 @@ const QiblaCompass: React.FC = () => {
       try {
         // Get current location
         const currentLocation = await getCurrentLocation();
-        
+
         if (!currentLocation) {
-          setErrorMessage('Unable to get your location. Please enable location services.');
+          setErrorMessage(
+            "Unable to get your location. Please enable location services."
+          );
           return;
         }
-        
+
         const { latitude, longitude } = currentLocation.coords;
         setLocation({ latitude, longitude });
-        
+
         // Calculate Qibla direction
         const direction = calculateQiblaDirection(latitude, longitude);
         setQiblaDirection(direction);
-        
-        // Start magnetometer to get device heading
-        magnetometerSubscription = startMagnetometer((data) => {
-          const heading = calculateHeading(data);
-          setDeviceHeading(heading);
-          
-          if (qiblaDirection !== null) {
-            const angle = calculateQiblaAngle(heading, direction);
-            setQiblaAngle(angle);
-          }
-        });
+        qiblaDirectionRef.current = direction; // Store in ref
       } catch (error) {
-        console.error('Error initializing compass:', error);
-        setErrorMessage('Error initializing compass. Please try again.');
+        console.error("Error initializing compass:", error);
+        setErrorMessage("Error initializing compass. Please try again.");
       }
     };
 
@@ -61,60 +64,179 @@ const QiblaCompass: React.FC = () => {
     };
   }, []);
 
+  // Set up magnetometer separately to avoid dependency issues
+  useEffect(() => {
+    let magnetometerSubscription: { unsubscribe: () => void } | null = null;
+
+    const setupMagnetometer = async () => {
+      try {
+        // Start magnetometer to get device heading
+        magnetometerSubscription = startMagnetometer((data) => {
+          const heading = calculateHeading(data);
+          setDeviceHeading(heading);
+
+          // Use the ref value instead of the state to avoid dependency issues
+          if (qiblaDirectionRef.current !== null) {
+            const angle = calculateQiblaAngle(
+              heading,
+              qiblaDirectionRef.current
+            );
+            setQiblaAngle(angle);
+          }
+        });
+      } catch (error) {
+        console.error("Error setting up magnetometer:", error);
+      }
+    };
+
+    setupMagnetometer();
+
+    // Cleanup
+    return () => {
+      if (magnetometerSubscription) {
+        magnetometerSubscription.unsubscribe();
+      }
+    };
+  }, []);
+
+  // Create styles based on theme
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 16,
+    },
+    errorText: {
+      color: colors.error,
+      textAlign: "center",
+      marginBottom: 16,
+    },
+    locationText: {
+      color: colors.text,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    compassContainer: {
+      width: 256,
+      height: 256,
+      position: "relative",
+      marginBottom: 16,
+    },
+    compassBackground: {
+      width: "100%",
+      height: "100%",
+      borderRadius: 128,
+      borderWidth: 2,
+      borderColor: colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    directionContainer: {
+      position: "absolute",
+      alignItems: "center",
+    },
+    northText: {
+      color: colors.accent,
+      fontWeight: "bold",
+    },
+    directionText: {
+      color: colors.text,
+      fontWeight: "bold",
+    },
+    qiblaArrow: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    arrowLine: {
+      width: 4,
+      height: 128,
+      backgroundColor: colors.primary,
+    },
+    arrowHead: {
+      position: "absolute",
+      top: 16,
+      width: 0,
+      height: 0,
+      borderLeftWidth: 8,
+      borderRightWidth: 8,
+      borderBottomWidth: 16,
+      borderLeftColor: "transparent",
+      borderRightColor: "transparent",
+      borderBottomColor: colors.primary,
+    },
+    titleText: {
+      fontSize: 18,
+      fontWeight: "600",
+      textAlign: "center",
+      color: colors.primary,
+      marginBottom: 8,
+    },
+    instructionText: {
+      color: colors.text,
+      textAlign: "center",
+    },
+  });
+
   return (
-    <View className="flex-1 items-center justify-center p-4">
+    <View style={styles.container}>
       {errorMessage ? (
-        <Text className="text-red-500 text-center mb-4">{errorMessage}</Text>
+        <Text style={styles.errorText}>{errorMessage}</Text>
       ) : (
         <>
           {location ? (
-            <Text className="text-gray-600 text-center mb-2">
-              Your location: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+            <Text style={styles.locationText}>
+              Your location: {location.latitude.toFixed(4)},{" "}
+              {location.longitude.toFixed(4)}
             </Text>
           ) : (
-            <Text className="text-gray-600 text-center mb-2">Getting your location...</Text>
+            <Text style={styles.locationText}>Getting your location...</Text>
           )}
-          
-          <View className="w-64 h-64 relative mb-4">
+
+          <View style={styles.compassContainer}>
             {/* Compass background */}
-            <View className="w-full h-full rounded-full border-2 border-gray-300 items-center justify-center">
+            <View style={styles.compassBackground}>
               {/* North indicator */}
-              <View className="absolute top-2 items-center">
-                <Text className="text-blue-600 font-bold">N</Text>
+              <View style={[styles.directionContainer, { top: 8 }]}>
+                <Text style={styles.northText}>N</Text>
               </View>
-              
+
               {/* South indicator */}
-              <View className="absolute bottom-2 items-center">
-                <Text className="text-gray-600 font-bold">S</Text>
+              <View style={[styles.directionContainer, { bottom: 8 }]}>
+                <Text style={styles.directionText}>S</Text>
               </View>
-              
+
               {/* East indicator */}
-              <View className="absolute right-2 items-center">
-                <Text className="text-gray-600 font-bold">E</Text>
+              <View style={[styles.directionContainer, { right: 8 }]}>
+                <Text style={styles.directionText}>E</Text>
               </View>
-              
+
               {/* West indicator */}
-              <View className="absolute left-2 items-center">
-                <Text className="text-gray-600 font-bold">W</Text>
+              <View style={[styles.directionContainer, { left: 8 }]}>
+                <Text style={styles.directionText}>W</Text>
               </View>
-              
+
               {/* Qibla arrow */}
-              <View 
-                className="absolute w-full h-full items-center justify-center"
-                style={{ transform: [{ rotate: `${qiblaAngle}deg` }] }}
+              <View
+                style={[
+                  styles.qiblaArrow,
+                  { transform: [{ rotate: `${qiblaAngle}deg` }] },
+                ]}
               >
-                <View className="w-1 h-32 bg-green-600" />
-                <View className="absolute top-4 w-0 h-0 border-l-8 border-r-8 border-b-16 border-l-transparent border-r-transparent border-b-green-600" />
+                <View style={styles.arrowLine} />
+                <View style={styles.arrowHead} />
               </View>
             </View>
           </View>
-          
-          <Text className="text-lg font-semibold text-center text-green-600 mb-2">
-            Qibla Direction
-          </Text>
-          
-          <Text className="text-gray-600 text-center">
-            Point the top of your device toward the green arrow to face the Qibla.
+
+          <Text style={styles.titleText}>Qibla Direction</Text>
+
+          <Text style={styles.instructionText}>
+            Point the top of your device toward the green arrow to face the
+            Qibla.
           </Text>
         </>
       )}

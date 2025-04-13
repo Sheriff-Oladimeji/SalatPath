@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Switch, SafeAreaView, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Switch,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { PrayerName } from "../../src/types";
 import { PRAYER_TIMES } from "../../src/utils/notifications";
 import { useNotificationStore } from "../../src/store/useNotificationStore";
+import { useThemeStore } from "../../src/store/useThemeStore";
 
 const SettingsScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -10,6 +20,9 @@ const SettingsScreen: React.FC = () => {
   // Get notification preferences and actions from Zustand store
   const { notificationPrefs, toggleNotification, initializeNotifications } =
     useNotificationStore();
+
+  // Get theme from store
+  const { colors, isDarkMode, toggleTheme } = useThemeStore();
 
   // Initialize notifications on component mount
   useEffect(() => {
@@ -36,111 +49,184 @@ const SettingsScreen: React.FC = () => {
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
 
+  // Create styles based on theme
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: "bold",
+      textAlign: "center",
+      color: colors.text,
+      marginBottom: 16,
+    },
+    sectionContainer: {
+      backgroundColor: colors.card,
+      borderRadius: 8,
+      padding: 16,
+      marginBottom: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: 16,
+    },
+    loadingText: {
+      textAlign: "center",
+      color: colors.gray,
+    },
+    prayerRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    lastPrayerRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 8,
+    },
+    prayerName: {
+      fontSize: 16,
+      color: colors.text,
+    },
+    prayerTime: {
+      fontSize: 14,
+      color: colors.gray,
+    },
+    themeRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 8,
+    },
+    themeIconContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    themeIcon: {
+      marginRight: 12,
+    },
+    themeText: {
+      fontSize: 16,
+      color: colors.text,
+    },
+    aboutText: {
+      fontSize: 16,
+      color: colors.text,
+      marginBottom: 8,
+    },
+    versionText: {
+      fontSize: 14,
+      color: colors.gray,
+      fontStyle: "italic",
+    },
+  });
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="flex-1 p-4">
-        <Text className="text-xl font-bold text-center text-gray-800 mb-4">
-          Settings
-        </Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.content}>
+        <Text style={styles.title}>Settings</Text>
 
         {/* Prayer Time Notifications */}
-        <View className="bg-white rounded-lg shadow-sm p-4 mb-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-4">
-            Prayer Time Notifications
-          </Text>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Prayer Time Notifications</Text>
 
           {isLoading ? (
-            <Text className="text-center text-gray-500">
-              Loading preferences...
-            </Text>
+            <Text style={styles.loadingText}>Loading preferences...</Text>
           ) : (
             <>
               {/* Fajr */}
-              <View className="flex-row justify-between items-center py-2 border-b border-gray-100">
+              <View style={styles.prayerRow}>
                 <View>
-                  <Text className="text-base text-gray-800">
+                  <Text style={styles.prayerName}>
                     {formatPrayerName("fajr")}
                   </Text>
-                  <Text className="text-sm text-gray-500">
-                    {PRAYER_TIMES.fajr}
-                  </Text>
+                  <Text style={styles.prayerTime}>{PRAYER_TIMES.fajr}</Text>
                 </View>
                 <Switch
                   value={notificationPrefs.fajr}
                   onValueChange={() => handleToggleChange("fajr")}
-                  trackColor={{ false: "#d1d5db", true: "#10b981" }}
+                  trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
                 />
               </View>
 
               {/* Dhuhr */}
-              <View className="flex-row justify-between items-center py-2 border-b border-gray-100">
+              <View style={styles.prayerRow}>
                 <View>
-                  <Text className="text-base text-gray-800">
+                  <Text style={styles.prayerName}>
                     {formatPrayerName("dhuhr")}
                   </Text>
-                  <Text className="text-sm text-gray-500">
-                    {PRAYER_TIMES.dhuhr}
-                  </Text>
+                  <Text style={styles.prayerTime}>{PRAYER_TIMES.dhuhr}</Text>
                 </View>
                 <Switch
                   value={notificationPrefs.dhuhr}
                   onValueChange={() => handleToggleChange("dhuhr")}
-                  trackColor={{ false: "#d1d5db", true: "#10b981" }}
+                  trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
                 />
               </View>
 
               {/* Asr */}
-              <View className="flex-row justify-between items-center py-2 border-b border-gray-100">
+              <View style={styles.prayerRow}>
                 <View>
-                  <Text className="text-base text-gray-800">
+                  <Text style={styles.prayerName}>
                     {formatPrayerName("asr")}
                   </Text>
-                  <Text className="text-sm text-gray-500">
-                    {PRAYER_TIMES.asr}
-                  </Text>
+                  <Text style={styles.prayerTime}>{PRAYER_TIMES.asr}</Text>
                 </View>
                 <Switch
                   value={notificationPrefs.asr}
                   onValueChange={() => handleToggleChange("asr")}
-                  trackColor={{ false: "#d1d5db", true: "#10b981" }}
+                  trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
                 />
               </View>
 
               {/* Maghrib */}
-              <View className="flex-row justify-between items-center py-2 border-b border-gray-100">
+              <View style={styles.prayerRow}>
                 <View>
-                  <Text className="text-base text-gray-800">
+                  <Text style={styles.prayerName}>
                     {formatPrayerName("maghrib")}
                   </Text>
-                  <Text className="text-sm text-gray-500">
-                    {PRAYER_TIMES.maghrib}
-                  </Text>
+                  <Text style={styles.prayerTime}>{PRAYER_TIMES.maghrib}</Text>
                 </View>
                 <Switch
                   value={notificationPrefs.maghrib}
                   onValueChange={() => handleToggleChange("maghrib")}
-                  trackColor={{ false: "#d1d5db", true: "#10b981" }}
+                  trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
                 />
               </View>
 
               {/* Isha */}
-              <View className="flex-row justify-between items-center py-2">
+              <View style={styles.lastPrayerRow}>
                 <View>
-                  <Text className="text-base text-gray-800">
+                  <Text style={styles.prayerName}>
                     {formatPrayerName("isha")}
                   </Text>
-                  <Text className="text-sm text-gray-500">
-                    {PRAYER_TIMES.isha}
-                  </Text>
+                  <Text style={styles.prayerTime}>{PRAYER_TIMES.isha}</Text>
                 </View>
                 <Switch
                   value={notificationPrefs.isha}
                   onValueChange={() => handleToggleChange("isha")}
-                  trackColor={{ false: "#d1d5db", true: "#10b981" }}
+                  trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
                 />
               </View>
@@ -148,18 +234,41 @@ const SettingsScreen: React.FC = () => {
           )}
         </View>
 
+        {/* Theme Settings */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Appearance</Text>
+
+          <View style={styles.themeRow}>
+            <View style={styles.themeIconContainer}>
+              <Ionicons
+                name={isDarkMode ? "moon" : "sunny"}
+                size={24}
+                color={isDarkMode ? colors.gray : "#FFB800"}
+                style={styles.themeIcon}
+              />
+              <Text style={styles.themeText}>
+                {isDarkMode ? "Dark Mode" : "Light Mode"}
+              </Text>
+            </View>
+            <Switch
+              value={isDarkMode}
+              onValueChange={toggleTheme}
+              trackColor={{ false: colors.lightGray, true: colors.primary }}
+              thumbColor="#ffffff"
+            />
+          </View>
+        </View>
+
         {/* About */}
-        <View className="bg-white rounded-lg shadow-sm p-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-2">
-            About
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>About</Text>
+
+          <Text style={styles.aboutText}>
+            DeenFlow helps you track your five daily prayers, maintain a streak,
+            and receive timely notifications.
           </Text>
 
-          <Text className="text-base text-gray-700 mb-2">
-            SalatPath helps you track your five daily prayers, maintain a
-            streak, and receive timely notifications.
-          </Text>
-
-          <Text className="text-sm text-gray-500 italic">Version 1.0.0</Text>
+          <Text style={styles.versionText}>Version 1.0.0</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

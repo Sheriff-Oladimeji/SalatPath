@@ -1,15 +1,36 @@
-import React from 'react';
-import { View, Text, SafeAreaView } from 'react-native';
-import QiblaCompass from '../../components/QiblaCompass';
+import React from "react";
+import { View, Text, SafeAreaView, StyleSheet } from "react-native";
+import QiblaCompass from "../../components/QiblaCompass";
+import { useThemeStore } from "../../src/store/useThemeStore";
 
 const QiblaScreen: React.FC = () => {
+  // Get theme colors
+  const { colors } = useThemeStore();
+
+  // Create styles based on theme
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: "bold",
+      textAlign: "center",
+      color: colors.text,
+      marginBottom: 16,
+    },
+  });
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="flex-1 p-4">
-        <Text className="text-xl font-bold text-center text-gray-800 mb-4">
-          Qibla Direction
-        </Text>
-        
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Qibla Direction</Text>
+
         <QiblaCompass />
       </View>
     </SafeAreaView>

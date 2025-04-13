@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, SafeAreaView } from "react-native";
+import { View, Text, SafeAreaView, StyleSheet } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
 import { format } from "date-fns";
 import { usePrayerStore } from "../../src/store/usePrayerStore";
+import { useThemeStore } from "../../src/store/useThemeStore";
 
 const HistoryScreen: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -19,6 +20,9 @@ const HistoryScreen: React.FC = () => {
 
   // Get prayer logs from Zustand store
   const { prayerLogs, areAllPrayersCompleted } = usePrayerStore();
+
+  // Get theme colors
+  const { colors, isDarkMode } = useThemeStore();
 
   // Update marked dates when current month or prayer logs change
   useEffect(() => {
@@ -99,31 +103,95 @@ const HistoryScreen: React.FC = () => {
     setMarkedDates(updatedMarkedDates);
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="flex-1 p-4">
-        <Text className="text-xl font-bold text-center text-gray-800 mb-4">
-          Prayer History
-        </Text>
+  // Create styles based on theme
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: "bold",
+      textAlign: "center",
+      color: colors.text,
+      marginBottom: 16,
+    },
+    calendarContainer: {
+      backgroundColor: colors.card,
+      borderRadius: 8,
+      padding: 8,
+      marginBottom: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    infoContainer: {
+      backgroundColor: colors.card,
+      borderRadius: 8,
+      padding: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    dateText: {
+      fontSize: 16,
+      textAlign: "center",
+      color: colors.text,
+      marginBottom: 8,
+    },
+    legendContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    legendItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginRight: 16,
+    },
+    legendDot: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      marginRight: 4,
+    },
+    legendText: {
+      fontSize: 14,
+      color: colors.text,
+    },
+  });
 
-        <View className="bg-white rounded-lg shadow-sm p-2 mb-4">
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Prayer History</Text>
+
+        <View style={styles.calendarContainer}>
           <Calendar
             onDayPress={handleDayPress}
             onMonthChange={handleMonthChange}
             markedDates={markedDates}
             theme={{
-              calendarBackground: "#ffffff",
-              textSectionTitleColor: "#b6c1cd",
-              selectedDayBackgroundColor: "#E0F2F1",
-              selectedDayTextColor: "#2d4150",
-              todayTextColor: "#00adf5",
-              dayTextColor: "#2d4150",
-              textDisabledColor: "#d9e1e8",
-              dotColor: "#00adf5",
-              selectedDotColor: "#ffffff",
-              arrowColor: "#00adf5",
-              monthTextColor: "#2d4150",
-              indicatorColor: "#00adf5",
+              calendarBackground: colors.card,
+              textSectionTitleColor: colors.gray,
+              selectedDayBackgroundColor: colors.primary,
+              selectedDayTextColor: "#FFFFFF",
+              todayTextColor: colors.accent,
+              dayTextColor: colors.text,
+              textDisabledColor: colors.lightGray,
+              dotColor: colors.primary,
+              selectedDotColor: "#FFFFFF",
+              arrowColor: colors.primary,
+              monthTextColor: colors.text,
+              indicatorColor: colors.primary,
               textDayFontWeight: "300",
               textMonthFontWeight: "bold",
               textDayHeaderFontWeight: "300",
@@ -134,20 +202,24 @@ const HistoryScreen: React.FC = () => {
           />
         </View>
 
-        <View className="bg-white rounded-lg shadow-sm p-4">
-          <Text className="text-center text-base text-gray-700 mb-2">
+        <View style={styles.infoContainer}>
+          <Text style={styles.dateText}>
             {format(new Date(selectedDate), "EEEE, MMMM d, yyyy")}
           </Text>
 
-          <View className="flex-row justify-center items-center">
-            <View className="flex-row items-center mr-4">
-              <View className="w-3 h-3 rounded-full bg-green-500 mr-1" />
-              <Text className="text-sm text-gray-600">Completed</Text>
+          <View style={styles.legendContainer}>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: colors.success }]}
+              />
+              <Text style={styles.legendText}>Completed</Text>
             </View>
 
-            <View className="flex-row items-center">
-              <View className="w-3 h-3 rounded-full bg-red-500 mr-1" />
-              <Text className="text-sm text-gray-600">Incomplete</Text>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: colors.error }]}
+              />
+              <Text style={styles.legendText}>Incomplete</Text>
             </View>
           </View>
         </View>
