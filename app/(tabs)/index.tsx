@@ -95,19 +95,34 @@ const DashboardScreen: React.FC = () => {
       <View className="pt-2">
         <View className="flex-row justify-between items-center px-4 pb-2">
           <Text
-            style={{ color: colors.text }}
-            className="text-lg font-semibold"
+            style={{
+              color: colors.text,
+              fontSize: 18,
+              fontWeight: "600",
+            }}
           >
             {format(selectedDate, "MMMM yyyy")}
           </Text>
           <View
-            style={{ backgroundColor: colors.card }}
-            className="flex-row items-center rounded-full py-1.5 px-3.5"
+            style={{
+              backgroundColor: colors.card,
+              flexDirection: "row",
+              alignItems: "center",
+              borderRadius: 20,
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
           >
-            <Ionicons name="flame" size={18} color={colors.secondary} />
+            <Ionicons name="flame" size={20} color={colors.secondary} />
             <Text
-              style={{ color: colors.secondary }}
-              className="text-base font-bold ml-1.5"
+              style={{
+                color: colors.secondary,
+                fontSize: 16,
+                fontWeight: "bold",
+                marginLeft: 6,
+              }}
             >
               {streak}
             </Text>

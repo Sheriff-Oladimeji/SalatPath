@@ -134,15 +134,16 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                 backgroundColor: isSelected ? colors.secondary : "transparent",
                 borderRadius: 20,
                 alignItems: "center",
-                paddingVertical: 8,
-                paddingHorizontal: 4,
+                paddingVertical: 12,
+                paddingHorizontal: 8,
+                marginHorizontal: 2,
               }}
             >
               <Text
                 style={{
                   color: isSelected ? "#FFFFFF" : colors.gray,
-                  fontSize: 12,
-                  marginBottom: 4,
+                  fontSize: 14,
+                  marginBottom: 6,
                 }}
               >
                 {dayName}
@@ -150,18 +151,18 @@ const DateSelector: React.FC<DateSelectorProps> = ({
               <Text
                 style={{
                   color: isSelected ? "#FFFFFF" : colors.text,
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: "600",
-                  marginBottom: 4,
+                  marginBottom: 6,
                 }}
               >
                 {dayNumber}
               </Text>
               <View
                 style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: 3,
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
                   backgroundColor: isCompleted
                     ? colors.success
                     : isToday

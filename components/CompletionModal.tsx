@@ -20,21 +20,65 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
       visible={visible}
       onRequestClose={onClose}
     >
-      <View className="flex-1 justify-center items-center bg-black/50">
-        <View className="bg-card dark:bg-[#1E2A45] rounded-[20px] p-6 w-4/5 items-center border border-border dark:border-[#2D3A59] shadow-md">
-          <Text className="text-2xl font-bold text-secondary mb-4 text-center">
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "rgba(0,0,0,0.5)",
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: colors.card,
+            borderRadius: 20,
+            padding: 24,
+            width: "80%",
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: colors.border,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: "bold",
+              color: colors.secondary,
+              marginBottom: 16,
+              textAlign: "center",
+            }}
+          >
             تَقَبَّلَ اللهُ صَلاتَكَ
           </Text>
 
-          <Text className="text-base text-text dark:text-white text-center mb-6">
+          <Text
+            style={{
+              fontSize: 16,
+              color: colors.text,
+              textAlign: "center",
+              marginBottom: 24,
+            }}
+          >
             May Allah accept your prayer
           </Text>
 
-          <TouchableOpacity 
-            onPress={onClose} 
-            className="bg-success py-2.5 px-6 rounded-full"
+          <TouchableOpacity
+            onPress={onClose}
+            style={{
+              backgroundColor: colors.success,
+              paddingVertical: 10,
+              paddingHorizontal: 24,
+              borderRadius: 24,
+            }}
           >
-            <Text className="text-white font-semibold text-base">Alhamdulillah</Text>
+            <Text style={{ color: "#FFFFFF", fontWeight: "600", fontSize: 16 }}>
+              Alhamdulillah
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
