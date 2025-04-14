@@ -11,33 +11,22 @@ import { useEffect } from "react";
 import { Appearance } from "react-native";
 import "react-native-reanimated";
 import "../global.css";
-import * as Notifications from "expo-notifications";
-
 // Import Zustand stores
 import { usePrayerStore } from "../src/store/usePrayerStore";
-import { useNotificationStore } from "../src/store/useNotificationStore";
+import { useAlarmStore } from "../src/store/useAlarmStore";
 import { useThemeStore } from "../src/store/useThemeStore";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-// Configure notifications
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+// No need to configure notifications anymore, using audio alarms instead
 
 export default function RootLayout() {
   // Get system color scheme
   const colorScheme = Appearance.getColorScheme();
 
   // Access stores to initialize them
-  const initializeNotifications = useNotificationStore(
-    (state) => state.initializeNotifications
-  );
+  const initializeAlarms = useAlarmStore((state) => state.initializeAlarms);
   const prayerStore = usePrayerStore();
   const { isDarkMode, setThemeMode } = useThemeStore();
 
@@ -50,8 +39,8 @@ export default function RootLayout() {
       // Hide splash screen
       SplashScreen.hideAsync();
 
-      // Initialize notifications
-      initializeNotifications();
+      // Initialize alarms
+      initializeAlarms();
 
       // Initialize theme based on system preference
       setThemeMode("system");

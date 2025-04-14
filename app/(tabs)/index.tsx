@@ -13,11 +13,13 @@ import ModernPrayerItem from "../../components/ModernPrayerItem";
 import DateSelector from "../../components/DateSelector";
 import HadithDisplay from "../../components/HadithDisplay";
 import CompletionModal from "../../components/CompletionModal";
+import AlarmModal from "../../components/AlarmModal";
 import { PrayerName } from "../../src/types";
-import { PRAYER_TIMES } from "../../src/utils/notifications";
+import { PRAYER_TIMES } from "../../src/utils/alarm";
 import { hadiths } from "../../src/data/hadiths";
 import { usePrayerStore } from "../../src/store/usePrayerStore";
 import { useThemeStore } from "../../src/store/useThemeStore";
+import { useAlarmStore } from "../../src/store/useAlarmStore";
 
 const DashboardScreen: React.FC = () => {
   // State for modal visibility and selected date
@@ -36,6 +38,9 @@ const DashboardScreen: React.FC = () => {
     getDailyHadithIndex,
   } = usePrayerStore();
 
+  // Get alarm state and actions
+  const { activeAlarm, dismissAlarm } = useAlarmStore();
+
   // Format selected date to string
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
 
@@ -49,6 +54,7 @@ const DashboardScreen: React.FC = () => {
     asr: false,
     maghrib: false,
     isha: false,
+    tahajjud: false,
   };
 
   // Check if all prayers are completed
@@ -248,6 +254,15 @@ const DashboardScreen: React.FC = () => {
           isCurrentDate={isCurrentDate}
         />
 
+        {/* Tahajjud Prayer (Optional) */}
+        <ModernPrayerItem
+          name="tahajjud"
+          time={PRAYER_TIMES.tahajjud}
+          completed={prayerLog.tahajjud}
+          onToggle={handlePrayerToggle}
+          isCurrentDate={isCurrentDate}
+        />
+
         {/* Completion status */}
         <View style={styles.completionContainer}>
           <Text style={styles.completionText}>
@@ -264,6 +279,13 @@ const DashboardScreen: React.FC = () => {
       <CompletionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
+      />
+
+      {/* Alarm modal */}
+      <AlarmModal
+        visible={activeAlarm !== null}
+        prayerName={activeAlarm}
+        onDismiss={dismissAlarm}
       />
     </View>
   );

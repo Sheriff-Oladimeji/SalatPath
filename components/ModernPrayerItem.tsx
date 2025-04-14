@@ -6,7 +6,7 @@ import { useThemeStore } from "../src/store/useThemeStore";
 
 interface ModernPrayerItemProps {
   name: PrayerName;
-  time: string;
+  time: string | undefined;
   completed: boolean;
   onToggle: (name: PrayerName) => void;
   isCurrentDate: boolean;
@@ -23,12 +23,13 @@ const ModernPrayerItem: React.FC<ModernPrayerItemProps> = ({
 
   // Format prayer name for display
   const formatPrayerName = (name: PrayerName): string => {
-    const names: Record<PrayerName, string> = {
+    const names: Record<string, string> = {
       fajr: "Fajr",
       dhuhr: "Dhuhr",
       asr: "Asr",
       maghrib: "Maghrib",
       isha: "Isha",
+      tahajjud: "Tahajjud",
     };
 
     return names[name] || name.charAt(0).toUpperCase() + name.slice(1);
@@ -36,12 +37,13 @@ const ModernPrayerItem: React.FC<ModernPrayerItemProps> = ({
 
   // Get prayer icon
   const getPrayerIcon = (name: PrayerName): string => {
-    const icons: Record<PrayerName, string> = {
+    const icons: Record<string, string> = {
       fajr: "sunny-outline",
       dhuhr: "sunny",
       asr: "partly-sunny-outline",
       maghrib: "moon-outline",
       isha: "moon",
+      tahajjud: "star",
     };
 
     return icons[name] || "time-outline";

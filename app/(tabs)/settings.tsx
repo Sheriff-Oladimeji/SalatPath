@@ -10,25 +10,25 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { PrayerName } from "../../src/types";
-import { PRAYER_TIMES } from "../../src/utils/notifications";
-import { useNotificationStore } from "../../src/store/useNotificationStore";
+import { PRAYER_TIMES } from "../../src/utils/alarm";
+import { useAlarmStore } from "../../src/store/useAlarmStore";
 import { useThemeStore } from "../../src/store/useThemeStore";
+import TahajjudAlarmButton from "../../components/TahajjudAlarmButton";
 
 const SettingsScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Get notification preferences and actions from Zustand store
-  const { notificationPrefs, toggleNotification, initializeNotifications } =
-    useNotificationStore();
+  // Get alarm preferences and actions from Zustand store
+  const { alarmPrefs, toggleAlarm, initializeAlarms } = useAlarmStore();
 
   // Get theme from store
   const { colors, isDarkMode, toggleTheme } = useThemeStore();
 
-  // Initialize notifications on component mount
+  // Initialize alarms on component mount
   useEffect(() => {
     const initialize = async () => {
       setIsLoading(true);
-      await initializeNotifications();
+      await initializeAlarms();
       setIsLoading(false);
     };
 
@@ -38,9 +38,9 @@ const SettingsScreen: React.FC = () => {
   // Handle toggle change for a specific prayer
   const handleToggleChange = async (prayer: PrayerName) => {
     try {
-      await toggleNotification(prayer);
+      await toggleAlarm(prayer);
     } catch (error) {
-      console.error("Error updating notification preferences:", error);
+      console.error("Error updating alarm preferences:", error);
     }
   };
 
@@ -145,7 +145,7 @@ const SettingsScreen: React.FC = () => {
 
         {/* Prayer Time Notifications */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Prayer Time Notifications</Text>
+          <Text style={styles.sectionTitle}>Prayer Time Alarms</Text>
 
           {isLoading ? (
             <Text style={styles.loadingText}>Loading preferences...</Text>
@@ -160,7 +160,7 @@ const SettingsScreen: React.FC = () => {
                   <Text style={styles.prayerTime}>{PRAYER_TIMES.fajr}</Text>
                 </View>
                 <Switch
-                  value={notificationPrefs.fajr}
+                  value={alarmPrefs.fajr}
                   onValueChange={() => handleToggleChange("fajr")}
                   trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
@@ -176,7 +176,7 @@ const SettingsScreen: React.FC = () => {
                   <Text style={styles.prayerTime}>{PRAYER_TIMES.dhuhr}</Text>
                 </View>
                 <Switch
-                  value={notificationPrefs.dhuhr}
+                  value={alarmPrefs.dhuhr}
                   onValueChange={() => handleToggleChange("dhuhr")}
                   trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
@@ -192,7 +192,7 @@ const SettingsScreen: React.FC = () => {
                   <Text style={styles.prayerTime}>{PRAYER_TIMES.asr}</Text>
                 </View>
                 <Switch
-                  value={notificationPrefs.asr}
+                  value={alarmPrefs.asr}
                   onValueChange={() => handleToggleChange("asr")}
                   trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
@@ -208,7 +208,7 @@ const SettingsScreen: React.FC = () => {
                   <Text style={styles.prayerTime}>{PRAYER_TIMES.maghrib}</Text>
                 </View>
                 <Switch
-                  value={notificationPrefs.maghrib}
+                  value={alarmPrefs.maghrib}
                   onValueChange={() => handleToggleChange("maghrib")}
                   trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
@@ -216,7 +216,7 @@ const SettingsScreen: React.FC = () => {
               </View>
 
               {/* Isha */}
-              <View style={styles.lastPrayerRow}>
+              <View style={styles.prayerRow}>
                 <View>
                   <Text style={styles.prayerName}>
                     {formatPrayerName("isha")}
@@ -224,8 +224,22 @@ const SettingsScreen: React.FC = () => {
                   <Text style={styles.prayerTime}>{PRAYER_TIMES.isha}</Text>
                 </View>
                 <Switch
-                  value={notificationPrefs.isha}
+                  value={alarmPrefs.isha}
                   onValueChange={() => handleToggleChange("isha")}
+                  trackColor={{ false: colors.lightGray, true: colors.primary }}
+                  thumbColor="#ffffff"
+                />
+              </View>
+
+              {/* Tahajjud */}
+              <View style={styles.lastPrayerRow}>
+                <View>
+                  <Text style={styles.prayerName}>Tahajjud</Text>
+                  <Text style={styles.prayerTime}>{PRAYER_TIMES.tahajjud}</Text>
+                </View>
+                <Switch
+                  value={alarmPrefs.tahajjud}
+                  onValueChange={() => handleToggleChange("tahajjud")}
                   trackColor={{ false: colors.lightGray, true: colors.primary }}
                   thumbColor="#ffffff"
                 />
@@ -258,6 +272,9 @@ const SettingsScreen: React.FC = () => {
             />
           </View>
         </View>
+
+        {/* Tahajjud Alarm (for debugging) */}
+        <TahajjudAlarmButton />
 
         {/* About */}
         <View style={styles.sectionContainer}>

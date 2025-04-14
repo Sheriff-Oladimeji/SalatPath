@@ -16,6 +16,7 @@ export interface PrayerLog {
   asr: boolean;
   maghrib: boolean;
   isha: boolean;
+  tahajjud: boolean;
 }
 
 // Interface for Streak Data
@@ -33,6 +34,25 @@ export interface NotificationPrefs {
   isha: boolean;
 }
 
+// Interface for Alarm Preferences (same structure as NotificationPrefs)
+export interface AlarmPrefs {
+  fajr: boolean;
+  dhuhr: boolean;
+  asr: boolean;
+  maghrib: boolean;
+  isha: boolean;
+  tahajjud: boolean;
+}
+
+// Interface for Alarm Timers
+export interface AlarmTimers {
+  fajr: NodeJS.Timeout | null;
+  dhuhr: NodeJS.Timeout | null;
+  asr: NodeJS.Timeout | null;
+  maghrib: NodeJS.Timeout | null;
+  isha: NodeJS.Timeout | null;
+}
+
 // Prayer Times interface (hardcoded for MVP)
 export interface PrayerTimes {
   fajr: string;
@@ -40,7 +60,14 @@ export interface PrayerTimes {
   asr: string;
   maghrib: string;
   isha: string;
+  tahajjud?: string; // Optional Tahajjud prayer time
 }
 
 // Prayer Names type
-export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
+export type PrayerName =
+  | "fajr"
+  | "dhuhr"
+  | "asr"
+  | "maghrib"
+  | "isha"
+  | "tahajjud";
