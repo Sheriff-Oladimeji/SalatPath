@@ -25,6 +25,7 @@ interface PrayerState {
   areAllPrayersCompleted: (date: string) => boolean;
   updateStreak: (date: string) => void;
   getFirstLogDate: () => Date | null;
+  saveState: () => void;
 }
 
 // Create the store with persistence
@@ -48,6 +49,7 @@ export const usePrayerStore = create<PrayerState>()(
             asr: false,
             maghrib: false,
             isha: false,
+            tahajjud: false,
           };
 
           // Toggle the prayer status
@@ -81,6 +83,7 @@ export const usePrayerStore = create<PrayerState>()(
             asr: false,
             maghrib: false,
             isha: false,
+            tahajjud: false,
           };
 
           return { prayerLogs: updatedPrayerLogs };
@@ -120,6 +123,7 @@ export const usePrayerStore = create<PrayerState>()(
 
         if (!prayerLog) return false;
 
+        // Check the 5 obligatory prayers (tahajjud is optional)
         return (
           prayerLog.fajr &&
           prayerLog.dhuhr &&
@@ -146,6 +150,13 @@ export const usePrayerStore = create<PrayerState>()(
       },
 
       // Update streak based on prayer completion
+      // Force save state to AsyncStorage
+      saveState: () => {
+        // The persist middleware should handle this automatically,
+        // but we can force a save by setting state
+        set((state) => ({ ...state }));
+      },
+
       updateStreak: (date) => {
         set((state) => {
           const allCompleted = get().areAllPrayersCompleted(date);

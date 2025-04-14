@@ -36,6 +36,7 @@ const DashboardScreen: React.FC = () => {
     togglePrayer,
     areAllPrayersCompleted,
     getDailyHadithIndex,
+    saveState,
   } = usePrayerStore();
 
   // Get alarm state and actions
@@ -65,11 +66,25 @@ const DashboardScreen: React.FC = () => {
 
   // Handle prayer toggle
   const handlePrayerToggle = (name: PrayerName) => {
+    // Store the current state before toggling
+    const wasCompleted = prayerLog[name];
+
+    // Toggle the prayer in the store
     togglePrayer(selectedDateStr, name);
 
-    // Show completion modal if all prayers are completed
-    if (!prayerLog[name] && areAllPrayersCompleted(selectedDateStr)) {
-      setModalVisible(true);
+    // Force save to AsyncStorage
+    saveState();
+
+    // Check if this toggle completed all prayers
+    // We need to check after toggling, but only show modal if it wasn't already completed
+    if (!wasCompleted) {
+      // Use setTimeout to ensure the store has updated
+      setTimeout(() => {
+        const allCompleted = areAllPrayersCompleted(selectedDateStr);
+        if (allCompleted) {
+          setModalVisible(true);
+        }
+      }, 100);
     }
   };
 
@@ -85,6 +100,19 @@ const DashboardScreen: React.FC = () => {
       StatusBar.setBackgroundColor(colors.card);
     }
   }, [isDarkMode]);
+
+  // Debug effect to verify data is being saved
+  useEffect(() => {
+    console.log("Prayer logs:", prayerLogs);
+    console.log("Current streak:", streak);
+    console.log("Selected date prayer log:", prayerLog);
+  }, [prayerLogs, streak, selectedDateStr]);
+
+  // Load data from AsyncStorage when component mounts
+  useEffect(() => {
+    // Force a state refresh to ensure data is loaded from AsyncStorage
+    saveState();
+  }, []);
 
   return (
     <SafeAreaView
