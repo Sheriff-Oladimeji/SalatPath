@@ -3,9 +3,9 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
   StatusBar,
   Platform,
+  SafeAreaView,
 } from "react-native";
 import { format, isSameDay } from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
@@ -58,116 +58,25 @@ const DashboardScreen: React.FC = () => {
   };
 
   // Check if all prayers are completed
-  const allCompleted = areAllPrayersCompleted(selectedDateStr);
+  const allPrayersCompleted = areAllPrayersCompleted(selectedDateStr);
 
-  // Get daily hadith index for the Hadith of the Day
+  // Get hadith index for the day
   const hadithIndex = getDailyHadithIndex(selectedDateStr);
 
-  // Handle prayer toggle (only for current date)
+  // Handle prayer toggle
   const handlePrayerToggle = (name: PrayerName) => {
-    if (!isCurrentDate) return;
+    togglePrayer(selectedDateStr, name);
 
-    // Show completion modal if prayer is being marked as completed
-    if (!prayerLog[name]) {
+    // Show completion modal if all prayers are completed
+    if (!prayerLog[name] && areAllPrayersCompleted(selectedDateStr)) {
       setModalVisible(true);
     }
-
-    // Update prayer in store
-    togglePrayer(selectedDateStr, name);
   };
 
   // Handle date selection
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
   };
-
-  // Create styles based on theme
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    header: {
-      backgroundColor: colors.card,
-      paddingTop: StatusBar.currentHeight || 40,
-      paddingBottom: 0,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    headerContent: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingHorizontal: 16,
-      paddingBottom: 8,
-    },
-    title: {
-      fontSize: 22,
-      fontWeight: "bold",
-      color: colors.text,
-    },
-    monthYearText: {
-      fontSize: 18,
-      fontWeight: "600",
-      color: colors.text,
-    },
-    topStreakContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: colors.background,
-      borderRadius: 20,
-      paddingVertical: 4,
-      paddingHorizontal: 10,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    streakCount: {
-      fontSize: 16,
-      fontWeight: "bold",
-      color: colors.secondary,
-      marginLeft: 4,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: "600",
-      color: colors.text,
-      marginBottom: 12,
-      marginTop: 8,
-    },
-    hadithContainer: {
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      padding: 16,
-      marginBottom: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    completionContainer: {
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      padding: 12,
-      marginTop: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      alignItems: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
-      elevation: 2,
-    },
-    completionText: {
-      fontSize: 15,
-      fontWeight: "500",
-      color: colors.text,
-      textAlign: "center",
-    },
-  });
 
   // Set status bar based on theme
   useEffect(() => {
@@ -178,16 +87,30 @@ const DashboardScreen: React.FC = () => {
   }, [isDarkMode]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      className="flex-1"
+    >
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.monthYearText}>
+      <View className="pt-2">
+        <View className="flex-row justify-between items-center px-4 pb-2">
+          <Text
+            style={{ color: colors.text }}
+            className="text-lg font-semibold"
+          >
             {format(selectedDate, "MMMM yyyy")}
           </Text>
-          <View style={styles.topStreakContainer}>
+          <View
+            style={{ backgroundColor: colors.card }}
+            className="flex-row items-center rounded-full py-1.5 px-3.5"
+          >
             <Ionicons name="flame" size={18} color={colors.secondary} />
-            <Text style={styles.streakCount}>{streak}</Text>
+            <Text
+              style={{ color: colors.secondary }}
+              className="text-base font-bold ml-1.5"
+            >
+              {streak}
+            </Text>
           </View>
         </View>
 
@@ -199,18 +122,29 @@ const DashboardScreen: React.FC = () => {
       </View>
 
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 12 }}
+        className="flex-1"
+        contentContainerClassName="p-4"
         showsVerticalScrollIndicator={false}
       >
         {/* Daily Hadith */}
-        <View style={styles.hadithContainer}>
-          <Text style={styles.sectionTitle}>Hadith of the Day</Text>
+        <View
+          style={{ backgroundColor: colors.card }}
+          className="rounded-[20px] p-4 mb-4"
+        >
+          <Text
+            style={{ color: colors.text }}
+            className="text-lg font-semibold mb-3"
+          >
+            Hadith of the Day
+          </Text>
           <HadithDisplay hadith={hadiths[hadithIndex]} />
         </View>
 
         {/* Prayer List */}
-        <Text style={styles.sectionTitle}>
+        <Text
+          style={{ color: colors.text }}
+          className="text-lg font-semibold mb-3 mt-2"
+        >
           {isCurrentDate ? "Today's Prayers" : "Prayers"}
         </Text>
 
@@ -263,10 +197,16 @@ const DashboardScreen: React.FC = () => {
           isCurrentDate={isCurrentDate}
         />
 
-        {/* Completion status */}
-        <View style={styles.completionContainer}>
-          <Text style={styles.completionText}>
-            {allCompleted
+        {/* Completion Message */}
+        <View
+          style={{ backgroundColor: colors.card }}
+          className="rounded-[20px] p-3 mt-4 items-center"
+        >
+          <Text
+            style={{ color: colors.text }}
+            className="text-base font-medium text-center"
+          >
+            {allPrayersCompleted
               ? "All prayers completed for today! 🎉"
               : isCurrentDate
               ? "May Allah accept your prayers"
@@ -287,7 +227,7 @@ const DashboardScreen: React.FC = () => {
         prayerName={activeAlarm}
         onDismiss={dismissAlarm}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

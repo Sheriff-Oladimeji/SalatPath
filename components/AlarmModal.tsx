@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Modal, View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeStore } from "../src/store/useThemeStore";
 import { PrayerName } from "../src/types";
@@ -20,75 +20,17 @@ const AlarmModal: React.FC<AlarmModalProps> = ({
   // Format prayer name for display
   const formatPrayerName = (name: PrayerName | null): string => {
     if (!name) return "";
-    const names: Record<PrayerName, string> = {
+    const names: Record<string, string> = {
       fajr: 'Fajr',
       dhuhr: 'Dhuhr',
       asr: 'Asr',
       maghrib: 'Maghrib',
-      isha: 'Isha'
+      isha: 'Isha',
+      tahajjud: 'Tahajjud'
     };
     
     return names[name] || name.charAt(0).toUpperCase() + name.slice(1);
   };
-
-  const styles = StyleSheet.create({
-    overlay: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "rgba(0, 0, 0, 0.7)",
-    },
-    container: {
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      padding: 24,
-      width: "80%",
-      alignItems: "center",
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
-    },
-    iconContainer: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
-      backgroundColor: colors.primary,
-      justifyContent: "center",
-      alignItems: "center",
-      marginBottom: 16,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: "bold",
-      color: colors.text,
-      marginBottom: 8,
-      textAlign: "center",
-    },
-    message: {
-      fontSize: 18,
-      color: colors.text,
-      textAlign: "center",
-      marginBottom: 24,
-    },
-    button: {
-      backgroundColor: colors.primary,
-      paddingVertical: 12,
-      paddingHorizontal: 24,
-      borderRadius: 30,
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    buttonText: {
-      color: "#FFFFFF",
-      fontWeight: "600",
-      fontSize: 16,
-      marginLeft: 8,
-    },
-  });
 
   return (
     <Modal
@@ -97,23 +39,26 @@ const AlarmModal: React.FC<AlarmModalProps> = ({
       visible={visible}
       onRequestClose={onDismiss}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <View style={styles.iconContainer}>
+      <View className="flex-1 justify-center items-center bg-black/70">
+        <View className="bg-card dark:bg-[#1E2A45] rounded-[20px] p-6 w-4/5 items-center border border-border dark:border-[#2D3A59] shadow-md">
+          <View className="w-20 h-20 rounded-full bg-primary justify-center items-center mb-4">
             <Ionicons name="alarm" size={40} color="white" />
           </View>
 
-          <Text style={styles.title}>
+          <Text className="text-2xl font-bold text-text dark:text-white mb-2 text-center">
             {formatPrayerName(prayerName)} Prayer Time
           </Text>
 
-          <Text style={styles.message}>
+          <Text className="text-lg text-text dark:text-white text-center mb-6">
             It's time for {formatPrayerName(prayerName)} prayer. May Allah accept your prayers.
           </Text>
 
-          <TouchableOpacity onPress={onDismiss} style={styles.button}>
+          <TouchableOpacity 
+            onPress={onDismiss} 
+            className="bg-primary py-3 px-6 rounded-full flex-row items-center"
+          >
             <Ionicons name="checkmark-circle" size={20} color="white" />
-            <Text style={styles.buttonText}>Dismiss</Text>
+            <Text className="text-white font-semibold text-base ml-2">Dismiss</Text>
           </TouchableOpacity>
         </View>
       </View>

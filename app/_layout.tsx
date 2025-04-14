@@ -9,10 +9,10 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Appearance } from "react-native";
+// Import Reanimated
 import "react-native-reanimated";
 import "../global.css";
 // Import Zustand stores
-import { usePrayerStore } from "../src/store/usePrayerStore";
 import { useAlarmStore } from "../src/store/useAlarmStore";
 import { useThemeStore } from "../src/store/useThemeStore";
 
@@ -22,12 +22,8 @@ SplashScreen.preventAutoHideAsync();
 // No need to configure notifications anymore, using audio alarms instead
 
 export default function RootLayout() {
-  // Get system color scheme
-  const colorScheme = Appearance.getColorScheme();
-
   // Access stores to initialize them
   const initializeAlarms = useAlarmStore((state) => state.initializeAlarms);
-  const prayerStore = usePrayerStore();
   const { isDarkMode, setThemeMode } = useThemeStore();
 
   const [loaded] = useFonts({
@@ -46,7 +42,7 @@ export default function RootLayout() {
       setThemeMode("system");
 
       // Listen for theme changes
-      const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      const subscription = Appearance.addChangeListener(() => {
         if (useThemeStore.getState().themeMode === "system") {
           setThemeMode("system");
         }

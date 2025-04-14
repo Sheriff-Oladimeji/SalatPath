@@ -139,9 +139,11 @@ const SettingsScreen: React.FC = () => {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <ScrollView style={styles.content}>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
 
         {/* Prayer Time Notifications */}
         <View style={styles.sectionContainer}>

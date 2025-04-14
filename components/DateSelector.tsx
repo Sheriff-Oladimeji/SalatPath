@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
-  StyleSheet,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from "react-native";
@@ -32,7 +31,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   const [visibleDates, setVisibleDates] = useState<Date[]>([]);
   const { prayerLogs, areAllPrayersCompleted, getFirstLogDate } =
     usePrayerStore();
-  const { colors, isDarkMode } = useThemeStore();
+  const { colors } = useThemeStore();
 
   // Get the first date the user started using the app
   const firstLogDate = getFirstLogDate() || new Date();
@@ -51,15 +50,14 @@ const DateSelector: React.FC<DateSelectorProps> = ({
     const dates = Array.from({ length: visibleItemsCount }, (_, i) =>
       addDays(startDate, i)
     );
-
     setVisibleDates(dates);
 
     // Scroll to today
     const todayIndex = dates.findIndex((date) => isSameDay(date, today));
-    if (todayIndex !== -1 && scrollViewRef.current) {
+    if (todayIndex !== -1) {
       setTimeout(() => {
         scrollViewRef.current?.scrollTo({
-          x: todayIndex * itemWidth,
+          x: todayIndex * itemWidth - screenWidth / 2 + itemWidth / 2,
           animated: false,
         });
       }, 100);
@@ -68,169 +66,108 @@ const DateSelector: React.FC<DateSelectorProps> = ({
 
   // Handle scroll to load more dates
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
-    const isScrollingRight =
-      contentOffset.x > contentSize.width - layoutMeasurement.width - 50;
-    const isScrollingLeft = contentOffset.x < 50;
+    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+    const isScrollingRight = contentOffset.x > 0;
+    const isNearEnd =
+      contentOffset.x + layoutMeasurement.width > contentSize.width - 100;
+    const isNearStart = contentOffset.x < 100;
 
-    if (isScrollingRight) {
-      // Add more dates to the right (future)
+    if (isScrollingRight && isNearEnd) {
+      // Add more dates to the end
       const lastDate = visibleDates[visibleDates.length - 1];
       const newDates = Array.from({ length: 7 }, (_, i) =>
         addDays(lastDate, i + 1)
       );
-      // Use setTimeout to avoid setState during render
-      setTimeout(() => {
-        setVisibleDates((prevDates) => [...prevDates, ...newDates]);
-      }, 0);
-    } else if (isScrollingLeft) {
-      // Add more dates to the left (past), but not before firstLogDate
+      setVisibleDates([...visibleDates, ...newDates]);
+    } else if (!isScrollingRight && isNearStart && visibleDates.length > 0) {
+      // Add more dates to the beginning
       const firstDate = visibleDates[0];
+      const newDates = Array.from({ length: 7 }, (_, i) =>
+        addDays(firstDate, -(7 - i))
+      );
+      setVisibleDates([...newDates, ...visibleDates]);
 
-      // Only add past dates if they're not before the first log date
-      if (differenceInDays(firstDate, firstLogDate) > 1) {
-        const newDates = Array.from({ length: 7 }, (_, i) =>
-          addDays(firstDate, -(7 - i))
-        ).filter((date) => !isBefore(date, firstLogDate));
-
-        // Use setTimeout to avoid setState during render
-        setTimeout(() => {
-          setVisibleDates((prevDates) => [...newDates, ...prevDates]);
-
-          // Adjust scroll position to keep the same dates visible
-          if (scrollViewRef.current) {
-            scrollViewRef.current?.scrollTo({
-              x: contentOffset.x + newDates.length * itemWidth,
-              animated: false,
-            });
-          }
-        }, 0);
-      }
+      // Maintain scroll position
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          x: 7 * itemWidth,
+          animated: false,
+        });
+      }, 10);
     }
   };
 
-  // Check if a date has all prayers completed
-  const isDateCompleted = (date: Date) => {
-    const dateStr = format(date, "yyyy-MM-dd");
-    return areAllPrayersCompleted(dateStr);
-  };
-
-  // Check if a date is today
-  const isToday = (date: Date) => {
-    return isSameDay(date, new Date());
-  };
-
-  // Get status dot color
-  const getDotColor = (date: Date) => {
-    if (isToday(date)) return colors.accent;
-    if (isDateCompleted(date)) return colors.success;
-
-    const dateStr = format(date, "yyyy-MM-dd");
-    return prayerLogs[dateStr] ? colors.error : "transparent";
-  };
-
-  // We don't need to format month and year here anymore as it's shown in the parent component
-
-  // Create styles
-  const styles = StyleSheet.create({
-    container: {
-      marginBottom: 0,
-    },
-    dayNameText: {
-      fontSize: 11,
-      marginBottom: 2,
-    },
-    dateButton: {
-      alignItems: "center",
-      paddingVertical: 6,
-      marginHorizontal: 2,
-    },
-    dateText: {
-      fontSize: 16,
-      fontWeight: "600",
-      marginBottom: 2,
-    },
-    dateDot: {
-      width: 6,
-      height: 6,
-      borderRadius: 3,
-      marginTop: 1,
-    },
-  });
+  // Day names
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <View style={styles.container}>
+    <View className="mb-0">
       {/* Combined Day Names and Date Selector */}
       <ScrollView
         ref={scrollViewRef}
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 2 }}
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        className="pb-2"
       >
         {visibleDates.map((date, index) => {
-          const dayOfWeek = format(date, "E"); // Get short day name (Mon, Tue, etc.)
+          const dayName = dayNames[date.getDay()];
+          const dayNumber = format(date, "d");
           const isSelected = isSameDay(date, selectedDate);
-          const dotColor = getDotColor(date);
-          const day = format(date, "d");
-          const isCurrentDate = isToday(date);
+          const isToday = isSameDay(date, new Date());
+          const isPast = isBefore(date, new Date()) && !isToday;
+          const isCompleted = areAllPrayersCompleted(
+            format(date, "yyyy-MM-dd")
+          );
+          const daysSinceFirstLog = differenceInDays(date, firstLogDate);
+          const isBeforeFirstLog = daysSinceFirstLog < 0;
 
           return (
             <TouchableOpacity
               key={index}
               onPress={() => onDateSelect(date)}
-              style={[
-                styles.dateButton,
-                {
-                  width: itemWidth,
-                  backgroundColor: isSelected
-                    ? colors.secondary
-                    : "transparent",
-                  borderRadius: 20,
-                },
-              ]}
+              disabled={isBeforeFirstLog}
+              style={{
+                width: itemWidth,
+                opacity: isBeforeFirstLog ? 0.5 : 1,
+                backgroundColor: isSelected ? colors.secondary : "transparent",
+                borderRadius: 20,
+                alignItems: "center",
+                paddingVertical: 8,
+                paddingHorizontal: 4,
+              }}
             >
-              {/* Day of week */}
               <Text
-                style={[
-                  styles.dayNameText,
-                  {
-                    color: isSelected
-                      ? isDarkMode
-                        ? "#121826"
-                        : "white"
-                      : colors.gray,
-                  },
-                ]}
+                style={{
+                  color: isSelected ? "#FFFFFF" : colors.gray,
+                  fontSize: 12,
+                  marginBottom: 4,
+                }}
               >
-                {dayOfWeek}
+                {dayName}
               </Text>
-
-              {/* Date number */}
               <Text
-                style={[
-                  styles.dateText,
-                  {
-                    color: isSelected
-                      ? isDarkMode
-                        ? "#121826"
-                        : "white"
-                      : isCurrentDate
-                      ? colors.accent
-                      : colors.text,
-                  },
-                ]}
+                style={{
+                  color: isSelected ? "#FFFFFF" : colors.text,
+                  fontSize: 16,
+                  fontWeight: "600",
+                  marginBottom: 4,
+                }}
               >
-                {day}
+                {dayNumber}
               </Text>
               <View
-                style={[
-                  styles.dateDot,
-                  {
-                    backgroundColor: dotColor,
-                  },
-                ]}
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 3,
+                  backgroundColor: isCompleted
+                    ? colors.success
+                    : isToday
+                    ? colors.secondary
+                    : "transparent",
+                }}
               />
             </TouchableOpacity>
           );

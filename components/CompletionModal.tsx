@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Modal, View, Text, TouchableOpacity } from "react-native";
 import { useThemeStore } from "../src/store/useThemeStore";
 
 interface CompletionModalProps {
@@ -13,53 +13,6 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
 }) => {
   const { colors } = useThemeStore();
 
-  const styles = StyleSheet.create({
-    overlay: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-    },
-    container: {
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      padding: 24,
-      width: "80%",
-      alignItems: "center",
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
-    },
-    arabicText: {
-      fontSize: 24,
-      fontWeight: "bold",
-      color: colors.secondary,
-      marginBottom: 16,
-      textAlign: "center",
-    },
-    translationText: {
-      fontSize: 16,
-      color: colors.text,
-      textAlign: "center",
-      marginBottom: 24,
-    },
-    button: {
-      backgroundColor: colors.success,
-      paddingVertical: 10,
-      paddingHorizontal: 24,
-      borderRadius: 30,
-    },
-    buttonText: {
-      color: "#FFFFFF",
-      fontWeight: "600",
-      fontSize: 16,
-    },
-  });
-
   return (
     <Modal
       animationType="fade"
@@ -67,16 +20,21 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <Text style={styles.arabicText}>تَقَبَّلَ اللهُ صَلاتَكَ</Text>
+      <View className="flex-1 justify-center items-center bg-black/50">
+        <View className="bg-card dark:bg-[#1E2A45] rounded-[20px] p-6 w-4/5 items-center border border-border dark:border-[#2D3A59] shadow-md">
+          <Text className="text-2xl font-bold text-secondary mb-4 text-center">
+            تَقَبَّلَ اللهُ صَلاتَكَ
+          </Text>
 
-          <Text style={styles.translationText}>
+          <Text className="text-base text-text dark:text-white text-center mb-6">
             May Allah accept your prayer
           </Text>
 
-          <TouchableOpacity onPress={onClose} style={styles.button}>
-            <Text style={styles.buttonText}>Alhamdulillah</Text>
+          <TouchableOpacity 
+            onPress={onClose} 
+            className="bg-success py-2.5 px-6 rounded-full"
+          >
+            <Text className="text-white font-semibold text-base">Alhamdulillah</Text>
           </TouchableOpacity>
         </View>
       </View>

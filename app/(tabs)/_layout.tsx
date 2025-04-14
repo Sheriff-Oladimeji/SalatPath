@@ -23,8 +23,8 @@ export default function TabLayout() {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
           paddingTop: 5,
-          paddingBottom: Platform.OS === "ios" ? 20 : 5,
-          height: Platform.OS === "ios" ? 85 : 65,
+          paddingBottom: Platform.OS === "ios" ? 25 : 5,
+          height: Platform.OS === "ios" ? 85 : 60,
         },
 
         // Tab bar label style
