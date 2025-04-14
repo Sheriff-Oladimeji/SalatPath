@@ -1,8 +1,5 @@
-import { Audio } from "expo-av";
 import { PrayerName, AlarmPrefs, PrayerTimes } from "../types";
-
-// Sound object reference
-let sound: Audio.Sound | null = null;
+import { playAudio, stopAudio, setupAudio } from "./audioPlayer";
 
 // Hardcoded prayer times for MVP (same as before)
 export const PRAYER_TIMES: PrayerTimes = {
@@ -17,13 +14,8 @@ export const PRAYER_TIMES: PrayerTimes = {
 // Initialize audio
 export const initializeAudio = async (): Promise<boolean> => {
   try {
-    // Set audio mode for playback with safer configuration
-    await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: true,
-      shouldDuckAndroid: true,
-    });
-
+    // Use the setupAudio function from audioPlayer.ts
+    await setupAudio();
     return true;
   } catch (error) {
     console.error("Error initializing audio:", error);
@@ -73,34 +65,9 @@ export const playAlarm = async (): Promise<void> => {
   try {
     console.log("Playing alarm sound...");
 
-    // Unload any existing sound
-    if (sound) {
-      await sound.unloadAsync();
-    }
-
-    // Load and play the alarm sound
-    const { sound: newSound } = await Audio.Sound.createAsync(
-      require("../../assets/taweel_al_shawq.mp3"),
-      {
-        shouldPlay: true,
-        isLooping: true,
-        volume: 1.0,
-        progressUpdateIntervalMillis: 1000,
-      }
-    );
-
-    // Add status update listener
-    newSound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded) {
-        console.log(
-          `Alarm playing: ${status.isPlaying}, position: ${status.positionMillis}ms`
-        );
-      } else if (status.error) {
-        console.error(`Alarm playback error: ${status.error}`);
-      }
-    });
-
-    sound = newSound;
+    // Use the playAudio function from audioPlayer.ts
+    // The file should be in the assets/sounds folder
+    await playAudio("adhan.mp3", true, 1.0);
   } catch (error) {
     console.error("Error playing alarm:", error);
   }
@@ -109,11 +76,8 @@ export const playAlarm = async (): Promise<void> => {
 // Stop the alarm sound
 export const stopAlarm = async (): Promise<void> => {
   try {
-    if (sound) {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-      sound = null;
-    }
+    // Use the stopAudio function from audioPlayer.ts
+    await stopAudio();
   } catch (error) {
     console.error("Error stopping alarm:", error);
   }

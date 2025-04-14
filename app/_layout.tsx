@@ -15,6 +15,8 @@ import "../global.css";
 // Import Zustand stores
 import { useAlarmStore } from "../src/store/useAlarmStore";
 import { useThemeStore } from "../src/store/useThemeStore";
+// Import audio utilities
+import { setupAudio } from "../src/utils/audioPlayer";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -34,6 +36,11 @@ export default function RootLayout() {
     if (loaded) {
       // Hide splash screen
       SplashScreen.hideAsync();
+
+      // Initialize audio system
+      setupAudio().catch((error) => {
+        console.error("Failed to initialize audio system:", error);
+      });
 
       // Initialize alarms
       initializeAlarms();

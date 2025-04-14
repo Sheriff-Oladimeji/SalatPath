@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Modal, View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeStore } from "../src/store/useThemeStore";
 import { PrayerName } from "../src/types";
+import { playAudio, stopAudio } from "../src/utils/audioPlayer";
 
 interface AlarmModalProps {
   visible: boolean;
@@ -17,18 +18,34 @@ const AlarmModal: React.FC<AlarmModalProps> = ({
 }) => {
   const { colors } = useThemeStore();
 
+  // Play alarm sound when modal becomes visible
+  useEffect(() => {
+    if (visible) {
+      // Play the alarm sound
+      playAudio("adhan.mp3", true, 1.0);
+    } else {
+      // Stop the sound when modal is dismissed
+      stopAudio();
+    }
+
+    // Clean up when component unmounts
+    return () => {
+      stopAudio();
+    };
+  }, [visible]);
+
   // Format prayer name for display
   const formatPrayerName = (name: PrayerName | null): string => {
     if (!name) return "";
     const names: Record<string, string> = {
-      fajr: 'Fajr',
-      dhuhr: 'Dhuhr',
-      asr: 'Asr',
-      maghrib: 'Maghrib',
-      isha: 'Isha',
-      tahajjud: 'Tahajjud'
+      fajr: "Fajr",
+      dhuhr: "Dhuhr",
+      asr: "Asr",
+      maghrib: "Maghrib",
+      isha: "Isha",
+      tahajjud: "Tahajjud",
     };
-    
+
     return names[name] || name.charAt(0).toUpperCase() + name.slice(1);
   };
 
@@ -50,15 +67,21 @@ const AlarmModal: React.FC<AlarmModalProps> = ({
           </Text>
 
           <Text className="text-lg text-text dark:text-white text-center mb-6">
-            It's time for {formatPrayerName(prayerName)} prayer. May Allah accept your prayers.
+            It's time for {formatPrayerName(prayerName)} prayer. May Allah
+            accept your prayers.
           </Text>
 
-          <TouchableOpacity 
-            onPress={onDismiss} 
+          <TouchableOpacity
+            onPress={() => {
+              stopAudio();
+              onDismiss();
+            }}
             className="bg-primary py-3 px-6 rounded-full flex-row items-center"
           >
             <Ionicons name="checkmark-circle" size={20} color="white" />
-            <Text className="text-white font-semibold text-base ml-2">Dismiss</Text>
+            <Text className="text-white font-semibold text-base ml-2">
+              Dismiss
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
