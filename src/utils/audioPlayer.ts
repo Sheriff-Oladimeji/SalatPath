@@ -3,6 +3,12 @@ import { Audio } from 'expo-av';
 // Sound object to keep track of the loaded sound
 let sound: Audio.Sound | null = null;
 
+// Static map for audio assets
+const audioAssets: Record<string, any> = {
+  'adhan.mp3': require('../../assets/sounds/adhan.mp3'),
+  // Add more audio files here if needed
+};
+
 /**
  * Loads and plays an audio file
  * @param audioPath Path to the audio file in the assets folder
@@ -21,9 +27,10 @@ export const playAudio = async (
     }
 
     console.log(`Loading sound: ${audioPath}`);
+    const asset = audioAssets[audioPath];
+    if (!asset) throw new Error(`Audio asset not found: ${audioPath}`);
     const { sound: newSound } = await Audio.Sound.createAsync(
-      // Use require for local assets
-      require(`../../assets/sounds/${audioPath}`),
+      asset,
       {
         isLooping,
         volume,
@@ -35,7 +42,7 @@ export const playAudio = async (
 
     // Set up sound finished callback
     sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish && !isLooping) {
+      if ('didJustFinish' in status && status.didJustFinish && !isLooping) {
         // Clean up when finished playing
         unloadSound();
       }

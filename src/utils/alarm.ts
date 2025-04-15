@@ -1,5 +1,32 @@
 import { PrayerName, AlarmPrefs, PrayerTimes } from "../types";
-import { playAudio, stopAudio, setupAudio } from "./audioPlayer";
+import { Platform } from 'react-native';
+// @ts-ignore
+import { setAlarm } from 'expo-alarm';
+
+// Only import expo-alarm on Android
+type SetAlarmParams = {
+  hour: number;
+  minutes: number;
+  message?: string;
+  days?: number[];
+  vibrate?: boolean;
+  skipUi?: boolean;
+};
+
+/**
+ * Set a native alarm using the Android system clock (expo-alarm)
+ * @param params hour, minutes, message, etc.
+ */
+export async function setNativeAlarm(params: SetAlarmParams) {
+  if (Platform.OS !== 'android') {
+    throw new Error('Native alarm is only supported on Android devices.');
+  }
+  try {
+    await setAlarm(params);
+  } catch (e) {
+    console.error('Failed to set native alarm:', e);
+  }
+}
 
 // Hardcoded prayer times for MVP (same as before)
 export const PRAYER_TIMES: PrayerTimes = {
@@ -9,18 +36,6 @@ export const PRAYER_TIMES: PrayerTimes = {
   maghrib: "6:50 PM",
   isha: "8:05 PM",
   tahajjud: "1:12 AM", // Tahajjud prayer time
-};
-
-// Initialize audio
-export const initializeAudio = async (): Promise<boolean> => {
-  try {
-    // Use the setupAudio function from audioPlayer.ts
-    await setupAudio();
-    return true;
-  } catch (error) {
-    console.error("Error initializing audio:", error);
-    return false;
-  }
 };
 
 // Parse time string to get hours and minutes
@@ -58,29 +73,6 @@ export const getMillisecondsUntilPrayer = (timeStr: string): number => {
   }
 
   return prayerTime.getTime() - now.getTime();
-};
-
-// Play the alarm sound
-export const playAlarm = async (): Promise<void> => {
-  try {
-    console.log("Playing alarm sound...");
-
-    // Use the playAudio function from audioPlayer.ts
-    // The file should be in the assets/sounds folder
-    await playAudio("adhan.mp3", true, 1.0);
-  } catch (error) {
-    console.error("Error playing alarm:", error);
-  }
-};
-
-// Stop the alarm sound
-export const stopAlarm = async (): Promise<void> => {
-  try {
-    // Use the stopAudio function from audioPlayer.ts
-    await stopAudio();
-  } catch (error) {
-    console.error("Error stopping alarm:", error);
-  }
 };
 
 // Schedule an alarm for a specific prayer time
