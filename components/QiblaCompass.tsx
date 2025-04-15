@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useThemeStore } from "../src/store/useThemeStore";
+import { Magnetometer } from "expo-sensors";
 import {
   calculateQiblaDirection,
   calculateHeading,
@@ -19,6 +20,9 @@ const QiblaCompass: React.FC = () => {
   const [qiblaAngle, setQiblaAngle] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Store the magnetometer subscription in a ref so it's stable across renders
+  const magnetometerSubscription = useRef<any>(null);
+
   // Store qibla direction in a ref to avoid dependency issues
   const qiblaDirectionRef = useRef<number | null>(null);
 
@@ -27,8 +31,6 @@ const QiblaCompass: React.FC = () => {
 
   // Initialize compass and location
   useEffect(() => {
-    let magnetometerSubscription: { unsubscribe: () => void } | null = null;
-
     const initializeCompass = async () => {
       try {
         // Get current location
@@ -58,20 +60,18 @@ const QiblaCompass: React.FC = () => {
 
     // Cleanup
     return () => {
-      if (magnetometerSubscription) {
-        magnetometerSubscription.unsubscribe();
+      if (magnetometerSubscription.current && typeof magnetometerSubscription.current.remove === 'function') {
+        magnetometerSubscription.current.remove();
       }
     };
   }, []);
 
   // Set up magnetometer separately to avoid dependency issues
   useEffect(() => {
-    let magnetometerSubscription: { unsubscribe: () => void } | null = null;
-
     const setupMagnetometer = async () => {
       try {
         // Start magnetometer to get device heading
-        magnetometerSubscription = startMagnetometer((data) => {
+        magnetometerSubscription.current = startMagnetometer((data: any) => {
           const heading = calculateHeading(data);
           setDeviceHeading(heading);
 
@@ -93,8 +93,8 @@ const QiblaCompass: React.FC = () => {
 
     // Cleanup
     return () => {
-      if (magnetometerSubscription) {
-        magnetometerSubscription.unsubscribe();
+      if (magnetometerSubscription.current && typeof magnetometerSubscription.current.remove === 'function') {
+        magnetometerSubscription.current.remove();
       }
     };
   }, []);

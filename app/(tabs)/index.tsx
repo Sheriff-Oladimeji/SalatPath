@@ -13,13 +13,10 @@ import ModernPrayerItem from "../../components/ModernPrayerItem";
 import DateSelector from "../../components/DateSelector";
 import HadithDisplay from "../../components/HadithDisplay";
 import CompletionModal from "../../components/CompletionModal";
-import AlarmModal from "../../components/AlarmModal";
 import { PrayerName } from "../../src/types";
-import { PRAYER_TIMES } from "../../src/utils/alarm";
 import { hadiths } from "../../src/data/hadiths";
 import { usePrayerStore } from "../../src/store/usePrayerStore";
 import { useThemeStore } from "../../src/store/useThemeStore";
-import { useAlarmStore } from "../../src/store/useAlarmStore";
 
 const DashboardScreen: React.FC = () => {
   // State for modal visibility and selected date
@@ -38,9 +35,6 @@ const DashboardScreen: React.FC = () => {
     getDailyHadithIndex,
     saveState,
   } = usePrayerStore();
-
-  // Get alarm state and actions
-  const { activeAlarm, dismissAlarm } = useAlarmStore();
 
   // Format selected date to string
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
@@ -193,7 +187,7 @@ const DashboardScreen: React.FC = () => {
 
         <ModernPrayerItem
           name="fajr"
-          time={PRAYER_TIMES.fajr}
+          time="Fajr"
           completed={prayerLog.fajr}
           onToggle={handlePrayerToggle}
           isCurrentDate={isCurrentDate}
@@ -201,7 +195,7 @@ const DashboardScreen: React.FC = () => {
 
         <ModernPrayerItem
           name="dhuhr"
-          time={PRAYER_TIMES.dhuhr}
+          time="Dhuhr"
           completed={prayerLog.dhuhr}
           onToggle={handlePrayerToggle}
           isCurrentDate={isCurrentDate}
@@ -209,7 +203,7 @@ const DashboardScreen: React.FC = () => {
 
         <ModernPrayerItem
           name="asr"
-          time={PRAYER_TIMES.asr}
+          time="Asr"
           completed={prayerLog.asr}
           onToggle={handlePrayerToggle}
           isCurrentDate={isCurrentDate}
@@ -217,7 +211,7 @@ const DashboardScreen: React.FC = () => {
 
         <ModernPrayerItem
           name="maghrib"
-          time={PRAYER_TIMES.maghrib}
+          time="Maghrib"
           completed={prayerLog.maghrib}
           onToggle={handlePrayerToggle}
           isCurrentDate={isCurrentDate}
@@ -225,7 +219,7 @@ const DashboardScreen: React.FC = () => {
 
         <ModernPrayerItem
           name="isha"
-          time={PRAYER_TIMES.isha}
+          time="Isha"
           completed={prayerLog.isha}
           onToggle={handlePrayerToggle}
           isCurrentDate={isCurrentDate}
@@ -234,7 +228,7 @@ const DashboardScreen: React.FC = () => {
         {/* Tahajjud Prayer (Optional) */}
         <ModernPrayerItem
           name="tahajjud"
-          time={PRAYER_TIMES.tahajjud}
+          time="Tahajjud"
           completed={prayerLog.tahajjud}
           onToggle={handlePrayerToggle}
           isCurrentDate={isCurrentDate}
@@ -262,13 +256,6 @@ const DashboardScreen: React.FC = () => {
       <CompletionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-      />
-
-      {/* Alarm modal */}
-      <AlarmModal
-        visible={activeAlarm !== null}
-        prayerName={activeAlarm}
-        onDismiss={dismissAlarm}
       />
     </SafeAreaView>
   );

@@ -45,18 +45,7 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-av",
-       [
-        "expo-build-properties",
-        {
-          "android": {
-            "kotlinVersion": "1.7.20",
-            "compileSdkVersion": 34,
-            "targetSdkVersion": 34,
-            "buildToolsVersion": "34.0.0"
-          }
-        }
-      ]
+      "expo-av"
     ],
     "experiments": {
       "typedRoutes": true
