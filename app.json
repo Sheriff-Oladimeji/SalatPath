@@ -12,7 +12,9 @@
       "bundleIdentifier": "com.devsheriff.deenflow",
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {
@@ -43,7 +45,18 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-av"
+      "expo-av",
+       [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "1.9.22",
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
